@@ -3,12 +3,13 @@ package news_test
 import (
 	"context"
 	"fmt"
-	"github.com/TommyLearning/go-rest-api-project/internal/news"
-	"github.com/TommyLearning/go-rest-api-project/internal/postgres"
 	"net/http"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/TommyLearning/go-rest-api-project/internal/news"
+	"github.com/TommyLearning/go-rest-api-project/internal/postgres"
 
 	"github.com/docker/go-connections/nat"
 	"github.com/google/uuid"
@@ -305,17 +306,17 @@ func createTestDB(ctx context.Context) (*bun.DB, DBCleanupFunc, error) {
 		return nil, nil, fmt.Errorf("create test container: %w", err)
 	}
 
-	p, err := ctr.MappedPort(ctx, nat.Port("9000/tcp"))
+	p, err := ctr.MappedPort(ctx, nat.Port("5432/tcp"))
 	if err != nil {
 		return nil, nil, fmt.Errorf("mapped port: %w", err)
 	}
 
 	db, err := postgres.NewDB(&postgres.Config{
-		Host:     "192.168.0.27",
+		Host:     "localhost",
 		Debug:    true,
 		DBName:   "postgres",
-		User:     "TommyDbMaintainer",
-		Password: "1QAZ@wsx3EDC",
+		User:     "postgres",
+		Password: "postgres",
 		Port:     p.Port(),
 		SSLMode:  "disable",
 	})
