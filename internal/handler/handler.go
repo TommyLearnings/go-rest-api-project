@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/TommyLearning/go-rest-api-project/internal/logger"
@@ -49,6 +50,12 @@ func PostNews(ns NewsStorer) http.HandlerFunc {
 
 		if _, err := ns.Create(ctx, n); err != nil {
 			log.Error("failed to create news", "error", err)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HttpStatusCode())
+				return
+			}
+
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -64,6 +71,11 @@ func GetAllNews(ns NewsStorer) http.HandlerFunc {
 		n, err := ns.FindAll(ctx)
 		if err != nil {
 			log.Error("failed to get all news", "error", err)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HttpStatusCode())
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -92,6 +104,11 @@ func GetNewsById(ns NewsStorer) http.HandlerFunc {
 		n, err := ns.FindById(ctx, newsUUID)
 		if err != nil {
 			log.Error("failed to get news by id", "error", err)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HttpStatusCode())
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -128,6 +145,11 @@ func UpdateNewsById(ns NewsStorer) http.HandlerFunc {
 
 		if err2 := ns.UpdateById(ctx, n.Id, n); err2 != nil {
 			log.Error("failed to update news by id", "error", err2)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HttpStatusCode())
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -148,6 +170,11 @@ func DeleteNewsById(ns NewsStorer) http.HandlerFunc {
 		}
 		if err := ns.DeleteById(ctx, newsUUID); err != nil {
 			log.Error("failed to delete news by id", "error", err)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HttpStatusCode())
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
