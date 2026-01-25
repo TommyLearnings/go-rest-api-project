@@ -6,14 +6,22 @@ import (
 	"os"
 
 	"github.com/TommyLearning/go-rest-api-project/internal/logger"
+	"github.com/TommyLearning/go-rest-api-project/internal/news"
+	"github.com/TommyLearning/go-rest-api-project/internal/postgres"
 	"github.com/TommyLearning/go-rest-api-project/internal/router"
-	"github.com/TommyLearning/go-rest-api-project/internal/store"
 )
 
 func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
+	db, err := postgres.NewDB(&postgres.Config{})
 
-	r := router.New(store.New())
+	if err != nil {
+		log.Error("failed to connect to db", "error", err)
+		os.Exit(1)
+	}
+	newsStore := news.NewStore(db)
+	r := router.New(newsStore)
+
 	wrapperRouter := logger.AddLoggerMid(log, logger.LoggerMid(r))
 
 	log.Info("server starting on port 8080")

@@ -1,12 +1,27 @@
-# 注意：下方縮排必須是 Tab 鍵，不能是空格！
+GO_BIN?=$(shell pwd)/.bin
+SHELL:=env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
-.PHONY: fmt run tidy
+# Format the code
+fmt::
+	golangci-lint run --fix -v ./...
 
-fmt:
-	go fmt ./...
+# Run the generate command
+generate::
+	go generate ./...
 
-run:
+# Run the server
+run::
 	go run ./cmd/api-server/main.go
 
-tidy:
+# Run test
+test::
+	go test ./...
+
+# Run tidy
+tidy::
 	go mod tidy -v
+
+tools::
+	mkdir -p ${GO_BIN}
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ${GO_BIN} v1.64.5
+	GOBIN=${GO_BIN} go install tool

@@ -1,10 +1,11 @@
 package handler_test
 
 import (
-	"github.com/TommyLearning/go-rest-api-project/internal/store"
 	"net/url"
 	"testing"
 	"time"
+
+	"github.com/TommyLearning/go-rest-api-project/internal/news"
 
 	"github.com/TommyLearning/go-rest-api-project/internal/handler"
 
@@ -15,7 +16,7 @@ import (
 func TestNewsPostReqBody_Validate(t *testing.T) {
 	type expectaions struct {
 		err  string
-		news store.News
+		news *news.Record
 	}
 	testCases := []struct {
 		name        string
@@ -107,7 +108,7 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 				Tags:      []string{"tag1", "tag2"},
 			},
 			expectaions: expectaions{
-				news: store.News{
+				news: &news.Record{
 					Author:  "test-author",
 					Title:   "test-title",
 					Content: "test-content",
@@ -134,7 +135,7 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 
 				parseSource, parseErr := url.Parse(tc.req.Source)
 				require.NoError(t, parseErr)
-				tc.expectaions.news.Source = parseSource
+				tc.expectaions.news.Source = parseSource.String()
 
 				assert.Equal(t, tc.expectaions.news, news)
 			}

@@ -38,3 +38,6 @@ out/
 !**/src/test/**/out/
 
 # .vscode/
+
+# others
+.bin
