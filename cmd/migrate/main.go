@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/TommyLearning/go-rest-api-project/internal/migration"
 	"github.com/TommyLearning/go-rest-api-project/internal/postgres"
 	"github.com/uptrace/bun/extra/bundebug"
 	"github.com/uptrace/bun/migrate"
@@ -14,22 +15,33 @@ import (
 )
 
 func main() {
-	db, err := postgres.NewDB(&postgres.Config{})
-
+	db, err := postgres.NewDB(&postgres.Config{
+		Host:     os.Getenv("DATABASE_HOST"),
+		DBName:   os.Getenv("DATABASE_NAME"),
+		Password: os.Getenv("DATABASE_PASSWORD"),
+		User:     os.Getenv("DATABASE_USER"),
+		Port:     os.Getenv("DATABASE_PORT"),
+		SSLMode:  "disable",
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	db.AddQueryHook(bundebug.NewQueryHook(
-		bundebug.WithEnabled(false),
+		bundebug.WithEnabled(true),
 		bundebug.FromEnv(),
 	))
+	l := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
 
 	app := &cli.App{
-		Name:     "migrate",
-		Commands: []*cli.Command{},
+		Name: "migrate",
+		Commands: []*cli.Command{
+			newMigrationCmd(
+				migrate.NewMigrator(db, migration.New(), migrate.WithMarkAppliedOnSuccess(true)),
+				l,
+			),
+		},
 	}
-
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
