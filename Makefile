@@ -21,8 +21,12 @@ test::
 tidy::
 	go mod tidy -v
 
+#這句是可以依照建立的tools.go檔案去import
+#mkdir -p ${GO_BIN}
+#curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ${GO_BIN} v1.64.5
+#@cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % sh -c 'GOBIN=${GO_BIN} go install %'
+
 tools::
 	mkdir -p ${GO_BIN}
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ${GO_BIN} v1.64.5
-	@cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % sh -c 'GOBIN=${GO_BIN} go install %'
-#	GOBIN=${GO_BIN} go install tool
+	GOBIN=${GO_BIN} go install tool
