@@ -244,7 +244,7 @@ func TestStore_UpdatedByID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			s := news.NewStore(db)
 
-			err := s.UpdateByID(context.Background(), tc.news.Id, tc.news)
+			err := s.UpdateById(context.Background(), tc.news.Id, tc.news)
 
 			if tc.expectedStatus != 0 {
 				assert.Error(t, err)

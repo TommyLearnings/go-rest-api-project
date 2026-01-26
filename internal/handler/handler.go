@@ -15,11 +15,11 @@ import (
 //go:generate mockgen -source=handler.go -destination=mocks/handler.go -package=mockshandler
 
 type NewsStorer interface {
-	//Create(store.News) (store.News, error)
-	//FindById(uuid.UUID) (store.News, error)
-	//FindAll() ([]store.News, error)
-	//UpdateById(store.News) error
-	//DeleteById(uuid.UUID) error
+	// Create(store.News) (store.News, error)
+	// FindById(uuid.UUID) (store.News, error)
+	// FindAll() ([]store.News, error)
+	// UpdateById(store.News) error
+	// DeleteById(uuid.UUID) error
 	Create(context.Context, *news.Record) (*news.Record, error)
 	FindById(context.Context, uuid.UUID) (*news.Record, error)
 	FindAll(context.Context) ([]*news.Record, error)
@@ -90,7 +90,6 @@ func GetAllNews(ns NewsStorer) http.HandlerFunc {
 
 func GetNewsById(ns NewsStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		ctx := r.Context()
 		log := logger.FromContext(ctx)
 		log.Info("get news by id")
@@ -118,7 +117,6 @@ func GetNewsById(ns NewsStorer) http.HandlerFunc {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
 	}
 }
 
@@ -153,7 +151,6 @@ func UpdateNewsById(ns NewsStorer) http.HandlerFunc {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
 	}
 }
 
@@ -179,6 +176,5 @@ func DeleteNewsById(ns NewsStorer) http.HandlerFunc {
 			return
 		}
 		w.WriteHeader(http.StatusNoContent)
-
 	}
 }

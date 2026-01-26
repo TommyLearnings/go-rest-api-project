@@ -1,14 +1,12 @@
 package router
 
 import (
-	"github.com/TommyLearning/go-rest-api-project/internal/handler"
-	"github.com/TommyLearning/go-rest-api-project/internal/news"
-
 	"net/http"
+
+	"github.com/TommyLearning/go-rest-api-project/internal/handler"
 )
 
-func New(ns *news.Store) *http.ServeMux {
-
+func New(ns handler.NewsStorer) *http.ServeMux {
 	r := http.NewServeMux()
 
 	r.HandleFunc("POST /news", handler.PostNews(ns))

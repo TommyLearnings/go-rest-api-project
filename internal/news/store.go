@@ -57,8 +57,8 @@ func (s Store) DeleteById(ctx context.Context, id uuid.UUID) (err error) {
 	return nil
 }
 
-// UpdateByID update news by it's ID.
-func (s Store) UpdateByID(ctx context.Context, id uuid.UUID, news *Record) (err error) {
+// UpdateById update news by it's ID.
+func (s Store) UpdateById(ctx context.Context, id uuid.UUID, news *Record) (err error) {
 	r, err := s.db.NewUpdate().Model(news).Where("id = ?", id).Returning("NULL").Exec(ctx)
 	if err != nil {
 		return NewCustomError(err, http.StatusInternalServerError)

@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
+	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{}))
 	db, err := postgres.NewDB(&postgres.Config{
 		Host:     os.Getenv("DATABASE_HOST"),
 		DBName:   os.Getenv("DATABASE_NAME"),

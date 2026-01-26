@@ -24,4 +24,5 @@ tidy::
 tools::
 	mkdir -p ${GO_BIN}
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ${GO_BIN} v1.64.5
-	GOBIN=${GO_BIN} go install tool
+	@cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % sh -c 'GOBIN=${GO_BIN} go install %'
+#	GOBIN=${GO_BIN} go install tool

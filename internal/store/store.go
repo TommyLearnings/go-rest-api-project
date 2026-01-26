@@ -20,7 +20,6 @@ func New() *Store {
 }
 
 func (s *Store) Create(news News) (News, error) {
-
 	s.l.Lock()
 	defer s.l.Unlock()
 	news.ID = uuid.New()

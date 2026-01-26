@@ -2,10 +2,11 @@ package logger_test
 
 import (
 	"context"
-	"github.com/TommyLearning/go-rest-api-project/internal/logger"
 	"log/slog"
 	"os"
 	"testing"
+
+	"github.com/TommyLearning/go-rest-api-project/internal/logger"
 )
 
 func Test_CtxWithLogger(t *testing.T) {
@@ -40,7 +41,6 @@ func Test_CtxWithLogger(t *testing.T) {
 			if tc.exists != ok {
 				t.Errorf("expected :%v got %v", tc.exists, ok)
 			}
-
 		})
 	}
 }
@@ -67,7 +67,6 @@ func Test_FromContext(t *testing.T) {
 
 			if tc.expected && logger == nil {
 				t.Errorf("expected %v ,got %v", tc.expected, logger)
-
 			}
 		})
 	}

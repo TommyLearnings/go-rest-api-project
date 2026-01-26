@@ -139,7 +139,6 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 
 				assert.Equal(t, tc.expectaions.news, news)
 			}
-
 		})
 	}
 }
