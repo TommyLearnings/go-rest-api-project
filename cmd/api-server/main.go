@@ -1,18 +1,24 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/TommyLearning/go-rest-api-project/internal/logger"
 	"github.com/TommyLearning/go-rest-api-project/internal/news"
 	"github.com/TommyLearning/go-rest-api-project/internal/postgres"
 	"github.com/TommyLearning/go-rest-api-project/internal/router"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
-	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{}))
+	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
 	db, err := postgres.NewDB(&postgres.Config{
 		Host:     os.Getenv("DATABASE_HOST"),
 		DBName:   os.Getenv("DATABASE_NAME"),
@@ -28,12 +34,50 @@ func main() {
 	newsStore := news.NewStore(db)
 	r := router.New(newsStore)
 
-	wrapperRouter := logger.AddLoggerMid(log, logger.LoggerMid(r))
+	wrappedRouter := logger.AddLoggerMid(log, logger.LoggerMid(r))
 
 	log.Info("server starting on port 8080")
 
-	if err := http.ListenAndServe(":8080", wrapperRouter); err != nil {
-		log.Error("faild to start server", "error", err)
+	server := &http.Server{
+		Addr:              ":8080",
+		ReadHeaderTimeout: 3 * time.Second,
+		Handler:           wrappedRouter,
+	}
+
+	errGrp, errGrpCtx := errgroup.WithContext(context.Background())
+
+	errGrp.Go(func() error {
+		if err := server.ListenAndServe(); err != nil {
+			log.Error("faild to start server", "error", err)
+			return fmt.Errorf("failed to start server: %w", err)
+
+		}
+		return nil
+	})
+
+	errGrp.Go(func() error {
+		sigch := make(chan os.Signal, 1)
+		signal.Notify(sigch, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+		select {
+		case sig := <-sigch:
+			log.Info("signal received", "signal", sig)
+		case <-errGrpCtx.Done():
+		}
+
+		ctxWithTimeout, cancelFn := context.WithTimeout(errGrpCtx, 5*time.Second)
+		defer cancelFn()
+
+		log.Info("initiating graceful shutdown")
+
+		if err := server.Shutdown(ctxWithTimeout); err != nil {
+			return fmt.Errorf("error graceful shutdown: %w", err)
+		}
+
+		return nil
+	})
+
+	if err := errGrp.Wait(); err != nil {
+		log.Error("error running", "err", err)
 	}
 
 }
